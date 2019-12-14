@@ -14,6 +14,52 @@ The project requires the following frameworks:
 
 - gym-ple: https://github.com/lusob/gym-ple
  
-- Pytorch
+- PyTorch
 
 - OpenCV
+
+## Usage
+
+The program implements the following agents.
+
+- Baseline Agent.
+
+```bash
+
+```
+
+- SARSA Agent.
+
+```bash
+
+```
+
+- Q-Learning Agent.
+
+```bash
+
+```
+
+- Function Approximation Agent with Linear Regression.
+
+```bash
+
+```
+
+- Function Approximation Agent with a Feed Forward Neural Network.
+
+```bash
+
+```
+
+- Function Approximation Agent with Convolutional Neural Network.
+
+```bash
+
+```
+
+## Authors
+
+* **Tai Vu** - Stanford University
+
+* **Leon Tran** - Stanford University
