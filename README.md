@@ -18,7 +18,7 @@ The project requires the following frameworks:
 
 - OpenCV: https://opencv.org
 
-## Usage
+# Usage
 
 The program implements the following agents.
 
@@ -58,7 +58,7 @@ python main.py --algo=FuncApproxDNN --probFlap=0.1 --lr=0.1
 python main.py --algo=FuncApproxCNN --probFlap=0.1 --lr=0.1
 ```
 
-## Authors
+# Authors
 
 * **Tai Vu** - Stanford University
 
