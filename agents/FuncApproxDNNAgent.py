@@ -76,12 +76,10 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
         self.net = Net().to(self.device)
         self.criterion = torch.nn.MSELoss()
     
-
     def qValues(self, state):
         ''' Returns the current Q-values for a state. '''
         input = torch.Tensor(state).to(self.device)
         return self.net(input)
-        
         
     def act(self, state):
         ''' Returns the next action for the current state. '''
@@ -101,7 +99,6 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
             return 0
         else:
             return randomAct()
-    
     
     def train(self, order = 'forward', numIters = 20000, epsilon = 0.1, discount = 1, lr = 0.1, epsilonDecay = False,
               lrDecay = False, evalPerIters = 250, numItersEval = 1000, seed = 0, resume = False):
@@ -172,7 +169,6 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
         print("Max Reward: ", maxReward)
         print()
         
-    
     def test(self, numIters = 20000):
         ''' Evaluates the agent. '''
         self.epsilon = 0
@@ -212,7 +208,6 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
         print()
         return output
         
-            
     def updateWeights(self, state, action, reward, nextState):
         ''' Updates the weights of the network based on an observation. '''
         nextQValues = self.qValues(nextState)
@@ -224,7 +219,6 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
         loss.backward()
         self.optimizer.step()
         
-
     def saveOutput(self, output, iter):
         ''' Save the scores. '''
         if not os.path.isdir('scores'):
@@ -232,11 +226,9 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
         with open('./scores/scores_{}.json'.format(iter), 'w') as fp:
             json.dump(output, fp)
     
-    
     def saveModel(self):
         ''' Saves the network. '''
         torch.save(self.net.state_dict(), "model.params")
-        
         
     def loadModel(self):
         ''' Loads the network. '''

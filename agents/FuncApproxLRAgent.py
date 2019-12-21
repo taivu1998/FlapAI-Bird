@@ -27,7 +27,6 @@ class FuncApproxLRAgent(FlappyBirdAgent):
         self.weights = defaultdict(float)
         self.env = FlappyBirdLR(gym.make('FlappyBird-v0'))
     
-    
     def featureExtractor(self, state, action):
         ''' Extracts features from a tuple (state, action). '''
         hor_dist_to_next_pipe = state['next_pipe_dist_to_player']
@@ -42,11 +41,9 @@ class FuncApproxLRAgent(FlappyBirdAgent):
         result['bias'] = 1
         return result
     
-    
     def qValues(self, state, action):
         ''' Returns the current Q-value for a tuple (state, action). '''
         return dotProduct(self.weights, self.featureExtractor(state, action))
-        
         
     def act(self, state):
         ''' Returns the next action for the current state. '''
@@ -66,18 +63,15 @@ class FuncApproxLRAgent(FlappyBirdAgent):
         else:
             return randomAct()
     
-    
     def saveWeights(self):
         ''' Saves the weights. '''
         with open('weights.json', 'w') as fp:
             json.dump(self.weights, fp)
 
-
     def loadWeights(self):
         ''' Loads the weights. '''
         with open('weights.json') as fp:
             self.weights = json.load(fp)
-    
     
     def train(self, order = 'forward', numIters = 20000, epsilon = 0.1, discount = 1, eta = 0.01, epsilonDecay = False,
     etaDecay = False, evalPerIters = 250, numItersEval = 1000):
@@ -145,7 +139,6 @@ class FuncApproxLRAgent(FlappyBirdAgent):
         print("Max Reward: ", maxReward)
         print()
         
-    
     def test(self, numIters = 20000):
         ''' Evaluates the agent. '''
         self.epsilon = 0
@@ -183,7 +176,6 @@ class FuncApproxLRAgent(FlappyBirdAgent):
         print()
         return output
             
-            
     def updateWeight(self, state, action, reward, nextState):
         ''' Updates the weights based on an observation. '''
         nextQValues = [self.qValues(nextState, nextAction) for nextAction in self.actions]
@@ -191,7 +183,6 @@ class FuncApproxLRAgent(FlappyBirdAgent):
         currQValue = self.qValues(state, action)
         currFeatures = self.featureExtractor(state, action)
         increment(self.weights, -self.eta * (currQValue - reward - self.discount * nextV), currFeatures)
-
 
     def saveOutput(self, output, iter):
         ''' Save the scores. '''

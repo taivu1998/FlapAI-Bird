@@ -27,13 +27,11 @@ class BaselineAgent(FlappyBirdAgent):
         self.probFlap = probFlap
         self.env = FlappyBirdNormal(gym.make('FlappyBird-v0'))
 
-
     def act(self, state):
         ''' Returns the next action for the current state. '''
         if random.random() < self.probFlap:
             return 0
         return 1
-    
     
     def train(self, numIters = 20000, evalPerIters = 250, numItersEval = 1000):
         ''' Trains the agent. '''
@@ -48,7 +46,6 @@ class BaselineAgent(FlappyBirdAgent):
             if (i + 1) % self.evalPerIters == 0:
                 output = self.test(numIters = self.numItersEval)
                 self.saveOutput(output, i + 1)
-       
        
     def test(self, numIters = 2000):
         ''' Evaluates the agent. '''
@@ -87,7 +84,6 @@ class BaselineAgent(FlappyBirdAgent):
         print("Max Reward Test: ", maxReward)
         print()
         return output
-
 
     def saveOutput(self, output, iter):
         ''' Save the scores. '''

@@ -112,7 +112,6 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
 
         self.actionEncoding = torch.eye(2, device = self.device).unsqueeze(1)
 
-        
     def act(self, state):
         ''' Returns the next action for the current state. '''
         def randomAct():
@@ -131,7 +130,6 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
         else:
             return randomAct()
 
-    
     def train(self, numIters = 20000, epsilon = 0.1, discount = 1, batch_size = 32, lr = 0.1, num_experience = 50000,
               epsilonDecay = False, lrDecay = False, evalPerIters = 250, numItersEval = 1000, seed = 0, resume = False):
         ''' Trains the agent. '''
@@ -205,7 +203,6 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
         print("Max Reward: ", maxReward)
         print()
         
-    
     def test(self, numIters = 20000):
         ''' Evaluates the agent. '''
         self.epsilon = 0
@@ -245,7 +242,6 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
         print()
         return output
         
-          
     def updateWeights(self, batch):
         ''' Updates the weights of the network based on a minibatch of observations. '''
         stateBatch, actionBatch, rewardBatch, nextStateBatch, survivedBatch = batch
@@ -266,7 +262,6 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
         loss.backward()
         self.optimizer.step() 
 
-    
     def saveOutput(self, output, iter):
         ''' Save the scores. '''
         if not os.path.isdir('scores'):
@@ -274,11 +269,9 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
         with open('./scores/scores_{}.json'.format(iter), 'w') as fp:
             json.dump(output, fp)
             
-    
     def saveModel(self):
         ''' Saves the network. '''
         torch.save(self.net.state_dict(), "model.params")
-        
         
     def loadModel(self):
         ''' Loads the network. '''

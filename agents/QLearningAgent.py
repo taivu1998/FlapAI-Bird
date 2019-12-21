@@ -29,7 +29,6 @@ class QLearningAgent(FlappyBirdAgent):
         self.qValues = defaultdict(float)
         self.env = FlappyBirdNormal(gym.make('FlappyBird-v0'), rounding = rounding)
 
-
     def act(self, state):
         ''' Returns the next action for the current state. '''
         def randomAct():
@@ -49,13 +48,11 @@ class QLearningAgent(FlappyBirdAgent):
         else:
             return randomAct()
             
-    
     def saveQValues(self):
         ''' Saves the Q-values. '''
         toSave = {key[0] + ' action ' + str(key[1]) : self.qValues[key] for key in self.qValues}
         with open('qValues.json', 'w') as fp:
             json.dump(toSave, fp)
-            
             
     def loadQValues(self):
         ''' Loads the Q-values. '''
@@ -68,7 +65,6 @@ class QLearningAgent(FlappyBirdAgent):
             toLoad = json.load(fp)
             self.qValues = {parseKey(key) : toLoad[key] for key in toLoad}
 
-    
     def train(self, order = 'forward', numIters = 20000, epsilon = 0.1, discount = 1, eta = 0.9,
               epsilonDecay = False, etaDecay = False, evalPerIters = 250, numItersEval = 1000):
         ''' Trains the agent. '''
@@ -133,7 +129,6 @@ class QLearningAgent(FlappyBirdAgent):
         print("Max Reward Train: ", maxReward)
         print()
     
-    
     def test(self, numIters = 20000):
         ''' Evaluates the agent. '''
         self.epsilon = 0
@@ -170,7 +165,6 @@ class QLearningAgent(FlappyBirdAgent):
         print()
         return output
             
-            
     def updateQ(self, state, action, reward, nextState):
         ''' Updates the Q-values based on an observation. '''
         nextQValues = [self.qValues.get((nextState, nextAction), 0) for nextAction in self.actions]
@@ -178,7 +172,6 @@ class QLearningAgent(FlappyBirdAgent):
         self.qValues[(state, action)] = (1 - self.eta) * self.qValues.get((state, action), 0) \
                                         + self.eta * (reward + self.discount * nextValue)
         
-
     def saveOutput(self, output, iter):
         ''' Save the scores. '''
         if not os.path.isdir('scores'):
