@@ -93,8 +93,8 @@ class SARSAAgent(FlappyBirdAgent):
             epsilon (float): The epsilon value.
             discount (float): The discount factor.
             eta (float): The eta value.
-            epsilonDecay (bool): whether to use epsilon decay.
-            etaDecay (bool): whether to use eta decay.
+            epsilonDecay (bool): Whether to use epsilon decay.
+            etaDecay (bool): Whether to use eta decay.
             evalPerIters (int): The number of iterations between two evaluation calls.
             numItersEval (int): The number of evaluation iterations.
         '''

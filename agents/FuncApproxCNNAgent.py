@@ -132,7 +132,7 @@ class HParams():
         
         Args:
             lr (float): The learning rate.
-            resume (bool): whether to resume from checkpoints.
+            resume (bool): Whether to resume from checkpoints.
             seed (int): Random seed for PyTorch.
             batch_size (int): The size of a batch.
             start_epoch (int): The starting epoch.
@@ -212,12 +212,12 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
             batch_size (int): The size of a minibatch.
             lr (float): The learning rate.
             num_experience (int): The size of the Experience Replay memory.
-            epsilonDecay (bool): whether to use epsilon decay.
-            lrDecay (bool): whether to use learning rate decay.
+            epsilonDecay (bool): Whether to use epsilon decay.
+            lrDecay (bool): Whether to use learning rate decay.
             evalPerIters (int): The number of iterations between two evaluation calls.
             numItersEval (int): The number of evaluation iterations.
             seed (int): Random seed for PyTorch.
-            resume (bool): whether to resume from checkpoints.
+            resume (bool): Whether to resume from checkpoints.
         '''
         self.epsilon = epsilon
         self.initialEpsilon = epsilon
