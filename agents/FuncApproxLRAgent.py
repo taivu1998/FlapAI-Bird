@@ -248,7 +248,7 @@ class FuncApproxLRAgent(FlappyBirdAgent):
 
     def saveOutput(self, output, iter):
         '''
-        Save the scores.
+        Saves the scores.
         
         Args:
             output (dict): A set of scores.

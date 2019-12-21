@@ -43,5 +43,5 @@ class FlappyBirdAgent(object):
         raise NotImplementedError("Override this.")
         
     def saveOutput(self):
-        ''' Save the scores. '''
+        ''' Saves the scores. '''
         raise NotImplementedError("Override this.")
