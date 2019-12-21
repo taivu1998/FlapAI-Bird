@@ -1,6 +1,6 @@
 '''
-This is the main file of the program. It process command line arguments
-and run different Flappy Bird agents.
+This is the main file of the program. It processes command line arguments
+and runs different Flappy Bird agents.
 '''
 
 import os, sys
@@ -40,7 +40,7 @@ def parseArgs():
                         help = 'Probability of flappingin epsilon-greedy policy.')
     parser.add_argument('--order', type = str, default = 'forward',
                         choices = order_options, help = 'Order of Q-value updates.')
-    parser.add_argument('--discount', type = float, default = 1,
+    parser.add_argument('--discount', type = float, default = 1.,
                         help = 'Discount factor.')
     parser.add_argument('--numTrainIters', type = int, default = 10000,
                         help = 'Number of training iterations.')
@@ -48,7 +48,7 @@ def parseArgs():
                         help = 'Number of testing iterations.')
     parser.add_argument('--evalPerIters', type = int, default = 250,
                         help = 'Frequency of running evaluation.')
-    parser.add_argument('--epsilon', type = float, default = 0,
+    parser.add_argument('--epsilon', type = float, default = 0.,
                         help = 'Epsilon-greedy policy.')
     parser.add_argument('--lr', type = float, default = 0.1,
                         help = 'Learning rate.')
@@ -61,7 +61,7 @@ def parseArgs():
     parser.add_argument('--resume', action = 'store_true',
                         help = 'Resume from checkpoints or not.')
     parser.add_argument('--seed', type = int, default = 0,
-                        help = 'Random seed for Pytorch.')
+                        help = 'Random seed for PyTorch.')
     parser.add_argument('--batch-size', type = int, default = 32,
                         help = 'Size of a training minibatch.')
     parser.add_argument('--num-experience', type = int, default = 50000,

@@ -23,14 +23,30 @@ class QLearningAgent(FlappyBirdAgent):
     ''' Q-Learning Agent. '''
     
     def __init__(self, actions, probFlap = 0.5, rounding = None):
-        ''' Initializes the agent. '''
+        '''
+        Initializes the agent.
+        
+        Args:
+            actions (list): Possible action values.
+            probFlap (float): The probability of flapping when choosing
+                              the next action randomly.
+            rounding (int): The level of discretization.
+        '''
         super().__init__(actions)
         self.probFlap = probFlap
         self.qValues = defaultdict(float)
         self.env = FlappyBirdNormal(gym.make('FlappyBird-v0'), rounding = rounding)
 
     def act(self, state):
-        ''' Returns the next action for the current state. '''
+        '''
+        Returns the next action for the current state.
+        
+        Args:
+            state (str): The current state.
+            
+        Returns:
+            int: 0 or 1.
+        '''
         def randomAct():
             if random.random() < self.probFlap:
                 return 0
@@ -65,9 +81,23 @@ class QLearningAgent(FlappyBirdAgent):
             toLoad = json.load(fp)
             self.qValues = {parseKey(key) : toLoad[key] for key in toLoad}
 
-    def train(self, order = 'forward', numIters = 20000, epsilon = 0.1, discount = 1, eta = 0.9,
-              epsilonDecay = False, etaDecay = False, evalPerIters = 250, numItersEval = 1000):
-        ''' Trains the agent. '''
+    def train(self, order = 'forward', numIters = 20000, epsilon = 0.1, discount = 1,
+              eta = 0.9, epsilonDecay = False, etaDecay = False, evalPerIters = 250,
+              numItersEval = 1000):
+        '''
+        Trains the agent.
+        
+        Args:
+            order (str): The order of updates, 'forward' or 'backward'.
+            numIters (int): The number of training iterations.
+            epsilon (float): The epsilon value.
+            discount (float): The discount factor.
+            eta (float): The eta value.
+            epsilonDecay (bool): whether to use epsilon decay.
+            etaDecay (bool): whether to use eta decay.
+            evalPerIters (int): The number of iterations between two evaluation calls.
+            numItersEval (int): The number of evaluation iterations.
+        '''
         self.epsilon = epsilon
         self.initialEpsilon = epsilon
         self.discount = discount
@@ -130,7 +160,15 @@ class QLearningAgent(FlappyBirdAgent):
         print()
     
     def test(self, numIters = 20000):
-        ''' Evaluates the agent. '''
+        '''
+        Evaluates the agent.
+        
+        Args:
+            numIters (int): The number of evaluation iterations.
+        
+        Returns:
+            dict: A set of scores.
+        '''
         self.epsilon = 0
         self.env.seed(0)
 
@@ -166,14 +204,27 @@ class QLearningAgent(FlappyBirdAgent):
         return output
             
     def updateQ(self, state, action, reward, nextState):
-        ''' Updates the Q-values based on an observation. '''
+        '''
+        Updates the Q-values based on an observation.
+        
+        Args:
+            state, nextState (str): Two states.
+            action (int): 0 or 1.
+            reward (int): The reward value.
+        '''
         nextQValues = [self.qValues.get((nextState, nextAction), 0) for nextAction in self.actions]
         nextValue = max(nextQValues)
         self.qValues[(state, action)] = (1 - self.eta) * self.qValues.get((state, action), 0) \
                                         + self.eta * (reward + self.discount * nextValue)
         
     def saveOutput(self, output, iter):
-        ''' Save the scores. '''
+        '''
+        Save the scores.
+        
+        Args:
+            output (dict): A set of scores.
+            iter (int): Current iteration.
+        '''
         if not os.path.isdir('scores'):
             os.mkdir('scores')
         with open('./scores/scores_{}.json'.format(iter), 'w') as fp:

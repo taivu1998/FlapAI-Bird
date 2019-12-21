@@ -22,17 +22,36 @@ class FlappyBirdNormal(gym.Wrapper):
     ''' Game environment for SARSA and Q-Learning. '''
     
     def __init__(self, env, rounding = None):
-        ''' Initializes the environment. '''
+        '''
+        Initializes the environment.
+        
+        Args:
+            env (PLEEnv): A Pygame environment.
+            rounding (int): The level of discretization.
+        '''
         super().__init__(env)
         self.rounding = rounding
     
     def save_output(self, outdir = None):
-        ''' Save videos of the game. '''
+        '''
+        Saves videos of the game.
+        
+        Args:
+            outdir (str): Output directory.
+        '''
         if outdir:
             self.env = Monitor(self.env, directory = outdir, force = True)
         
     def step(self, action):
-        ''' Lets the agent take an action and observe the next state and reward. '''
+        '''
+        Lets the agent take an action and observe the next state and reward.
+        
+        Args:
+            action (int): 0 or 1.
+        
+        Returns:
+            tuple: state, reward, terminal.
+        '''
         _, reward, terminal, _ = self.env.step(action)
         state = self.getGameState()
         if not terminal: reward += 0.5
@@ -41,7 +60,12 @@ class FlappyBirdNormal(gym.Wrapper):
         return state, reward, terminal, {}
 
     def getGameState(self):
-        ''' Returns the current game state. '''
+        '''
+        Returns the current game state.
+        
+        Returns:
+            str: A string representing the game state.
+        '''
         gameState = self.env.game_state.getGameState()
         hor_dist_to_next_pipe = gameState['next_pipe_dist_to_player']
         ver_dist_to_next_pipe = gameState['next_pipe_bottom_y'] - gameState['player_y']
@@ -60,16 +84,34 @@ class FlappyBirdLR(gym.Wrapper):
     ''' Game environment for Function Approximation with Linear Regression. '''
     
     def __init__(self, env):
-        ''' Initializes the environment. '''
+        '''
+        Initializes the environment.
+        
+        Args:
+            env (PLEEnv): A Pygame environment.
+        '''
         super().__init__(env)
     
     def save_output(self, outdir = None):
-        ''' Save videos of the game. '''
+        '''
+        Saves videos of the game.
+        
+        Args:
+            outdir (str): Output directory.
+        '''
         if outdir:
             self.env = Monitor(self.env, directory = outdir, force = True)
         
     def step(self, action):
-        ''' Lets the agent take an action and observe the next state and reward. '''
+        '''
+        Lets the agent take an action and observe the next state and reward.
+        
+        Args:
+            action (int): 0 or 1.
+        
+        Returns:
+            tuple: state, reward, terminal.
+        '''
         _, reward, terminal, _ = self.env.step(action)
         state = self.getGameState()
         if not terminal: reward += 0.5
@@ -78,7 +120,12 @@ class FlappyBirdLR(gym.Wrapper):
         return state, reward, terminal, {}
 
     def getGameState(self):
-        ''' Returns the current game state. '''
+        '''
+        Returns the current game state.
+        
+        Returns:
+            dict: A dictionary representing the game state.
+        '''
         return self.env.game_state.getGameState()
         
         
@@ -86,16 +133,34 @@ class FlappyBirdDNN(gym.Wrapper):
     ''' Game environment for Function Approximation with Feed Forward Neural Networks. '''
     
     def __init__(self, env):
-        ''' Initializes the environment. '''
+        '''
+        Initializes the environment.
+        
+        Args:
+            env (PLEEnv): A Pygame environment.
+        '''
         super().__init__(env)
     
     def save_output(self, outdir = None):
-        ''' Save videos of the game. '''
+        '''
+        Saves videos of the game.
+        
+        Args:
+            outdir (str): Output directory.
+        '''
         if outdir:
             self.env = Monitor(self.env, directory = outdir, force = True)
         
     def step(self, action):
-        ''' Lets the agent take an action and observe the next state and reward. '''
+        '''
+        Lets the agent take an action and observe the next state and reward.
+        
+        Args:
+            action (int): 0 or 1.
+        
+        Returns:
+            tuple: state, reward, terminal.
+        '''
         _, reward, terminal, _ = self.env.step(action)
         state = self.getGameState()
         if not terminal: reward += 0.5
@@ -104,7 +169,12 @@ class FlappyBirdDNN(gym.Wrapper):
         return state, reward, terminal, {}
 
     def getGameState(self):
-        ''' Returns the current game state. '''
+        '''
+        Returns the current game state.
+        
+        Returns:
+            list: A list representing the game state.
+        '''
         gameState = self.env.game_state.getGameState()
         hor_dist_to_next_pipe = gameState['next_pipe_dist_to_player']
         ver_dist_to_next_pipe = gameState['next_pipe_bottom_y'] - gameState['player_y']
@@ -119,18 +189,36 @@ class FlappyBirdCNN(gym.Wrapper):
     ''' Game environment for Function Approximation with Convolutional Neural Networks. '''
     
     def __init__(self, env):
-        ''' Initializes the environment. '''
+        '''
+        Initializes the environment.
+        
+        Args:
+            env (PLEEnv): A Pygame environment.
+        '''
         super().__init__(env)
         self.transform = Transform()
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     def save_output(self, outdir = None):
-        ''' Save videos of the game. '''
+        '''
+        Saves videos of the game.
+        
+        Args:
+            outdir (str): Output directory.
+        '''
         if outdir:
             self.env = Monitor(self.env, directory = outdir, force = True)
         
     def step(self, action):
-        ''' Lets the agent take an action and observe the next state and reward. '''
+        '''
+        Lets the agent take an action and observe the next state and reward.
+        
+        Args:
+            action (int): 0 or 1.
+        
+        Returns:
+            tuple: state, reward, terminal.
+        '''
         state, reward, terminal, _ = self.env.step(action)
         state = self.transform.process(state)
         if not terminal: reward += 0.5
@@ -139,13 +227,18 @@ class FlappyBirdCNN(gym.Wrapper):
         return state, reward, terminal, {}
 
     def getGameState(self):
-        ''' Returns the current game state. '''
+        '''
+        Returns the current game state.
+        
+        Returns:
+            list: A list representing the game state.
+        '''
         gameState = self.env.game_state.getGameState()
         return list(gameState.values())
 
 
 class Transform(object):
-    ''' A class that transforms the images of the game screen. '''
+    ''' A class that preprocesses the images of the game screen. '''
     
     def __init__(self):
         ''' Initializes the class. '''
@@ -162,5 +255,13 @@ class Transform(object):
         ])
 
     def process(self, img):
-        ''' Transforms the input image. '''
+        '''
+        Transforms the input image.
+        
+        Args:
+            img (ndarray): Imput image.
+            
+        Returns:
+            Tensor: A transformed image.
+        '''
         return self.transform(img)

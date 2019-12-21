@@ -41,7 +41,15 @@ class Net(nn.Module):
         self.linear3 = nn.Linear(20, 2)
 
     def forward(self, x):
-        ''' Performs a forward pass through the network. '''
+        '''
+        Performs a forward pass through the network.
+        
+        Args:
+            x (Tensor): An input vector.
+            
+        Returns:
+            Tensor: An output vector.
+        '''
         x = F.relu(self.linear1(x))
         x = F.relu(self.linear2(x))
         x = F.relu(self.linear3(x))
@@ -53,8 +61,19 @@ class HParams():
     
     def __init__(self, lr = 0.1, resume = False, seed = 0, 
                  batch_size = 32, start_epoch = 0, epoch = 10000, 
-                 decay = 1e-4, num_experience = 50000):
-        ''' Initializes the parameters. '''
+                 decay = 1e-4):
+        '''
+        Initializes the parameters.
+        
+        Args:
+            lr (float): The learning rate.
+            resume (bool): whether to resume from checkpoints.
+            seed (int): Random seed for PyTorch.
+            batch_size (int): The size of a batch.
+            start_epoch (int): The starting epoch.
+            epoch (int): The number of epochs.
+            decay (float); Weight decay.
+        '''
         self.lr = lr
         self.resume = resume
         self.seed = seed
@@ -67,7 +86,14 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
     ''' Function Approximation Agent with a Feed Forward Neural Network. '''
     
     def __init__(self, actions, probFlap = 0.1):
-        ''' Initializes the agent. '''
+        '''
+        Initializes the agent.
+        
+        Args:
+            actions (list): Possible action values.
+            probFlap (float): The probability of flapping when choosing
+                              the next action randomly.
+        '''
         super().__init__(actions)
         self.probFlap = probFlap
         self.env = FlappyBirdDNN(gym.make('FlappyBird-v0'))
@@ -77,12 +103,29 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
         self.criterion = torch.nn.MSELoss()
     
     def qValues(self, state):
-        ''' Returns the current Q-values for a state. '''
+        '''
+        Returns the current Q-value for a tuple (state, action).
+        
+        Args:
+            state (dict): A state.
+            action (int): 0 or 1.
+        
+        Returns:
+            float: A Q-value.
+        '''
         input = torch.Tensor(state).to(self.device)
         return self.net(input)
         
     def act(self, state):
-        ''' Returns the next action for the current state. '''
+        '''
+        Returns the next action for the current state.
+        
+        Args:
+            state (str): The current state.
+            
+        Returns:
+            int: 0 or 1.
+        '''
         def randomAct():
             if random.random() < self.probFlap:
                 return 0
@@ -100,9 +143,25 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
         else:
             return randomAct()
     
-    def train(self, order = 'forward', numIters = 20000, epsilon = 0.1, discount = 1, lr = 0.1, epsilonDecay = False,
-              lrDecay = False, evalPerIters = 250, numItersEval = 1000, seed = 0, resume = False):
-        ''' Trains the agent. '''
+    def train(self, order = 'forward', numIters = 20000, epsilon = 0.1, discount = 1,
+              lr = 0.1, epsilonDecay = False, lrDecay = False, evalPerIters = 250,
+              numItersEval = 1000, seed = 0, resume = False):
+        '''
+        Trains the agent.
+        
+        Args:
+            order (str): The order of updates, 'forward' or 'backward'.
+            numIters (int): The number of training iterations.
+            epsilon (float): The epsilon value.
+            discount (float): The discount factor.
+            lr (float): The learning rate.
+            epsilonDecay (bool): whether to use epsilon decay.
+            lrDecay (bool): whether to use learning rate decay.
+            evalPerIters (int): The number of iterations between two evaluation calls.
+            numItersEval (int): The number of evaluation iterations.
+            seed (int): Random seed for PyTorch.
+            resume (bool): whether to resume from checkpoints.
+        '''
         self.epsilon = epsilon
         self.initialEpsilon = epsilon
         self.discount = discount
@@ -170,7 +229,15 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
         print()
         
     def test(self, numIters = 20000):
-        ''' Evaluates the agent. '''
+        '''
+        Evaluates the agent.
+        
+        Args:
+            numIters (int): The number of evaluation iterations.
+        
+        Returns:
+            dict: A set of scores.
+        '''
         self.epsilon = 0
         self.env.seed(0)
         self.net.eval()
@@ -209,7 +276,14 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
         return output
         
     def updateWeights(self, state, action, reward, nextState):
-        ''' Updates the weights of the network based on an observation. '''
+        '''
+        Updates the weights of the network based on an observation.
+        
+        Args:
+            state, nextState (str): Two states.
+            action (int): 0 or 1.
+            reward (int): The reward value.
+        '''
         nextQValues = self.qValues(nextState)
         nextV, _ = torch.max(nextQValues, 0)
         currQValue = self.qValues(state)[action]
@@ -220,7 +294,13 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
         self.optimizer.step()
         
     def saveOutput(self, output, iter):
-        ''' Save the scores. '''
+        '''
+        Save the scores.
+        
+        Args:
+            output (dict): A set of scores.
+            iter (int): Current iteration.
+        '''
         if not os.path.isdir('scores'):
             os.mkdir('scores')
         with open('./scores/scores_{}.json'.format(iter), 'w') as fp:

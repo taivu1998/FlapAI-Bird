@@ -22,19 +22,41 @@ class BaselineAgent(FlappyBirdAgent):
     ''' Baseline Agent with a random policy. '''
     
     def __init__(self, actions, probFlap = 0.5):
-        ''' Initializes the agent. '''
+        '''
+        Initializes the agent.
+        
+        Args:
+            actions (list): Possible action values.
+            probFlap (float): The probability of flapping when choosing
+                              the next action randomly.
+        '''
         super().__init__(actions)
         self.probFlap = probFlap
         self.env = FlappyBirdNormal(gym.make('FlappyBird-v0'))
 
     def act(self, state):
-        ''' Returns the next action for the current state. '''
+        '''
+        Returns the next action for the current state.
+        
+        Args:
+            state (list): The current state.
+            
+        Returns:
+            int: 0 or 1.
+        '''
         if random.random() < self.probFlap:
             return 0
         return 1
     
     def train(self, numIters = 20000, evalPerIters = 250, numItersEval = 1000):
-        ''' Trains the agent. '''
+        '''
+        Trains the agent.
+        
+        Args:
+            numIters (int): The number of training iterations.
+            evalPerIters (int): The number of iterations between two evaluation calls.
+            numItersEval (int): The number of evaluation iterations.
+        '''
         print("No training needed!")
         
         self.evalPerIters = evalPerIters
@@ -48,7 +70,15 @@ class BaselineAgent(FlappyBirdAgent):
                 self.saveOutput(output, i + 1)
        
     def test(self, numIters = 2000):
-        ''' Evaluates the agent. '''
+        '''
+        Evaluates the agent.
+        
+        Args:
+            numIters (int): The number of evaluation iterations.
+        
+        Returns:
+            dict: A set of scores.
+        '''
         self.env.seed(0)
 
         done = False
@@ -86,7 +116,13 @@ class BaselineAgent(FlappyBirdAgent):
         return output
 
     def saveOutput(self, output, iter):
-        ''' Save the scores. '''
+        '''
+        Save the scores.
+        
+        Args:
+            output (dict): A set of scores.
+            iter (int): Current iteration.
+        '''
         if not os.path.isdir('scores'):
             os.mkdir('scores')
         with open('./scores/scores_{}.json'.format(iter), 'w') as fp:

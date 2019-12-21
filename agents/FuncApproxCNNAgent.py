@@ -31,7 +31,17 @@ warnings.filterwarnings('ignore')
 
 
 def conv2d_size_out(size, kernel_size = 5, stride = 2):
-    ''' Calculates the shape of the output of a convolutional layer. '''
+    '''
+    Calculates the shape of the output of a convolutional layer.
+    
+    Args:
+        size (int): The size of the input image.
+        kernel_size (int): The size of the kernel.
+        stride (int): The stride value.
+        
+    Returns:
+        int: The size of the output feature map.
+    '''
     return (size - (kernel_size - 1) - 1) // stride  + 1
 
 class Net(nn.Module):
@@ -49,7 +59,15 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(self.LINEAR_INPUT_SIZE_FC1, 2)
         
     def forward(self, x):
-        ''' Performs a forward pass through the network. '''
+        '''
+        Performs a forward pass through the network.
+        
+        Args:
+            x (Tensor): An input image.
+            
+        Returns:
+            Tensor: An output vector.
+        '''
         x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
         x = x.view(x.size(0), -1)
@@ -61,19 +79,42 @@ class ExperienceReplay(object):
     ''' Experience Replay technique, which samples a minibatch of past observations. '''
     
     def __init__(self, size):
-        ''' Initializes the memory. '''
+        '''
+        Initializes the memory.
+        
+        Args:
+            size (int): The maximum size of the memory.
+        '''
         self.memory = deque(maxlen = size)
 
     def __len__(self):
-        ''' Returns the number of observations in the memory. '''
+        '''
+        Returns the number of observations in the memory.
+        
+        Returns:
+            int: The number of observations in the memory.
+        '''
         return len(self.memory)
 
     def memorize(self, observation):
-        ''' Add a new observation to the memory. '''
+        '''
+        Adds a new observation to the memory.
+        
+        Args:
+            onservation (tuple): A new observation.
+        '''
         self.memory.append(observation)
         
     def getBatch(self, batch_size):
-        ''' Samples a minibatch of observations from the memory. '''
+        '''
+        Samples a minibatch of observations from the memory.
+        
+        Args:
+            batch_size (int): The size of a minibatch.
+            
+        Returns:
+            zip: A minibatch of observations.
+        '''
         if len(self.memory) < batch_size:
             return None
         batch = random.sample(self.memory, batch_size)
@@ -86,7 +127,19 @@ class HParams():
     def __init__(self, lr = 0.1, resume = False, seed = 0, 
                  batch_size = 32, start_epoch = 0, epoch = 10000, 
                  decay = 1e-4, num_experience = 50000):
-        ''' Initializes the parameters. '''
+        '''
+        Initializes the parameters.
+        
+        Args:
+            lr (float): The learning rate.
+            resume (bool): whether to resume from checkpoints.
+            seed (int): Random seed for PyTorch.
+            batch_size (int): The size of a batch.
+            start_epoch (int): The starting epoch.
+            epoch (int): The number of epochs.
+            decay (float); Weight decay.
+            num_experience (int): The size of the Experience Replay memory.
+        '''
         self.lr = lr
         self.resume = resume
         self.seed = seed
@@ -101,7 +154,14 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
     ''' Function Approximation Agent with a Convolutional Neural Network. '''
     
     def __init__(self, actions, probFlap = 0.1):
-        ''' Initializes the agent. '''
+        '''
+        Initializes the agent.
+        
+        Args:
+            actions (list): Possible action values.
+            probFlap (float): The probability of flapping when choosing
+                              the next action randomly.
+        '''
         super().__init__(actions)
         self.probFlap = probFlap
         self.env = FlappyBirdCNN(gym.make('FlappyBird-v0'))
@@ -109,11 +169,20 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.net = Net().to(self.device)
         self.criterion = torch.nn.MSELoss()
-
+        
+        # 0 corresponds to [1, 0], 1 corresponds to [0, 1].
         self.actionEncoding = torch.eye(2, device = self.device).unsqueeze(1)
 
     def act(self, state):
-        ''' Returns the next action for the current state. '''
+        '''
+        Returns the next action for the current state.
+        
+        Args:
+            state (str): The current state.
+            
+        Returns:
+            int: 0 or 1.
+        '''
         def randomAct():
             if random.random() < self.probFlap:
                 return 0
@@ -130,9 +199,26 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
         else:
             return randomAct()
 
-    def train(self, numIters = 20000, epsilon = 0.1, discount = 1, batch_size = 32, lr = 0.1, num_experience = 50000,
-              epsilonDecay = False, lrDecay = False, evalPerIters = 250, numItersEval = 1000, seed = 0, resume = False):
-        ''' Trains the agent. '''
+    def train(self, numIters = 20000, epsilon = 0.1, discount = 1, batch_size = 32,
+              lr = 0.1, num_experience = 50000, epsilonDecay = False, lrDecay = False,
+              evalPerIters = 250, numItersEval = 1000, seed = 0, resume = False):
+        '''
+        Trains the agent.
+        
+        Args:
+            numIters (int): The number of training iterations.
+            epsilon (float): The epsilon value.
+            discount (float): The discount factor.
+            batch_size (int): The size of a minibatch.
+            lr (float): The learning rate.
+            num_experience (int): The size of the Experience Replay memory.
+            epsilonDecay (bool): whether to use epsilon decay.
+            lrDecay (bool): whether to use learning rate decay.
+            evalPerIters (int): The number of iterations between two evaluation calls.
+            numItersEval (int): The number of evaluation iterations.
+            seed (int): Random seed for PyTorch.
+            resume (bool): whether to resume from checkpoints.
+        '''
         self.epsilon = epsilon
         self.initialEpsilon = epsilon
         self.discount = discount
@@ -167,6 +253,8 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
             score = 0
             totalReward = 0
             ob = self.env.reset()
+            
+            # Performs a dummy action.
             state, _, _, _ = self.env.step(1)
             
             while True:
@@ -182,7 +270,8 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
                 action = self.actionEncoding[action]
                 self.experienceReplay.memorize((state, action, reward, nextState, survived))
                 state = nextState
-
+                
+                # Fills the memory with at least 5000 observations before training.
                 if counter >= 5000: 
                     batch = self.experienceReplay.getBatch(self.hparams.batch_size)
                     if batch:
@@ -204,7 +293,15 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
         print()
         
     def test(self, numIters = 20000):
-        ''' Evaluates the agent. '''
+        '''
+        Evaluates the agent.
+        
+        Args:
+            numIters (int): The number of evaluation iterations.
+        
+        Returns:
+            dict: A set of scores.
+        '''
         self.epsilon = 0
         self.env.seed(0)
         self.net.eval()
@@ -220,12 +317,14 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
                 score = 0
                 totalReward = 0
                 ob = self.env.reset()
+                
+                # Performs a dummy action.
                 state, _, _, _ = self.env.step(1)
                 
                 while True:
                     action = self.act(state)
                     state, reward, done, _ = self.env.step(action)
-    #                self.env.render()  # Uncomment it to display graphics.
+#                    self.env.render()  # Uncomment it to display graphics.
                     totalReward += reward
                     if reward >= 1:
                         score += 1
@@ -243,7 +342,12 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
         return output
         
     def updateWeights(self, batch):
-        ''' Updates the weights of the network based on a minibatch of observations. '''
+        '''
+        Updates the weights of the network based on a minibatch of observations.
+        
+        Args:
+            batch (zip): A minibatch of observations.
+        '''
         stateBatch, actionBatch, rewardBatch, nextStateBatch, survivedBatch = batch
         stateBatch = torch.cat(stateBatch)
         actionBatch = torch.cat(actionBatch)
@@ -263,7 +367,13 @@ class FuncApproxCNNAgent(FlappyBirdAgent):
         self.optimizer.step() 
 
     def saveOutput(self, output, iter):
-        ''' Save the scores. '''
+        '''
+        Save the scores.
+        
+        Args:
+            output (dict): A set of scores.
+            iter (int): Current iteration.
+        '''
         if not os.path.isdir('scores'):
             os.mkdir('scores')
         with open('./scores/scores_{}.json'.format(iter), 'w') as fp:

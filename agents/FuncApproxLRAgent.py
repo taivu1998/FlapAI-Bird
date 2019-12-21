@@ -21,14 +21,30 @@ class FuncApproxLRAgent(FlappyBirdAgent):
     ''' Function Approximation Agent with Linear Regression. '''
     
     def __init__(self, actions, probFlap = 0.1):
-        ''' Initializes the agent. '''
+        '''
+        Initializes the agent.
+        
+        Args:
+            actions (list): Possible action values.
+            probFlap (float): The probability of flapping when choosing
+                              the next action randomly.
+        '''
         super().__init__(actions)
         self.probFlap = probFlap
         self.weights = defaultdict(float)
         self.env = FlappyBirdLR(gym.make('FlappyBird-v0'))
     
     def featureExtractor(self, state, action):
-        ''' Extracts features from a tuple (state, action). '''
+        '''
+        Extracts features from a tuple (state, action).
+        
+        Args:
+            state (dict): A state.
+            action (int): 0 or 1.
+        
+        Returns:
+            dict: A feature vector.
+        '''
         hor_dist_to_next_pipe = state['next_pipe_dist_to_player']
         ver_dist_to_next_pipe = state['next_pipe_bottom_y'] - state['player_y']
         result = defaultdict(float)
@@ -42,11 +58,28 @@ class FuncApproxLRAgent(FlappyBirdAgent):
         return result
     
     def qValues(self, state, action):
-        ''' Returns the current Q-value for a tuple (state, action). '''
+        '''
+        Returns the current Q-value for a tuple (state, action).
+        
+        Args:
+            state (dict): A state.
+            action (int): 0 or 1.
+        
+        Returns:
+            float: A Q-value.
+        '''
         return dotProduct(self.weights, self.featureExtractor(state, action))
         
     def act(self, state):
-        ''' Returns the next action for the current state. '''
+        '''
+        Returns the next action for the current state.
+        
+        Args:
+            state (str): The current state.
+            
+        Returns:
+            int: 0 or 1.
+        '''
         def randomAct():
             if random.random() < self.probFlap:
                 return 0
@@ -73,9 +106,23 @@ class FuncApproxLRAgent(FlappyBirdAgent):
         with open('weights.json') as fp:
             self.weights = json.load(fp)
     
-    def train(self, order = 'forward', numIters = 20000, epsilon = 0.1, discount = 1, eta = 0.01, epsilonDecay = False,
-    etaDecay = False, evalPerIters = 250, numItersEval = 1000):
-        ''' Trains the agent. '''
+    def train(self, order = 'forward', numIters = 20000, epsilon = 0.1, discount = 1,
+              eta = 0.01, epsilonDecay = False, etaDecay = False, evalPerIters = 250,
+              numItersEval = 1000):
+        '''
+        Trains the agent.
+        
+        Args:
+            order (str): The order of updates, 'forward' or 'backward'.
+            numIters (int): The number of training iterations.
+            epsilon (float): The epsilon value.
+            discount (float): The discount factor.
+            eta (float): The eta value.
+            epsilonDecay (bool): whether to use epsilon decay.
+            etaDecay (bool): whether to use eta decay.
+            evalPerIters (int): The number of iterations between two evaluation calls.
+            numItersEval (int): The number of evaluation iterations.
+        '''
         self.epsilon = epsilon
         self.initialEpsilon = epsilon
         self.discount = discount
@@ -140,7 +187,15 @@ class FuncApproxLRAgent(FlappyBirdAgent):
         print()
         
     def test(self, numIters = 20000):
-        ''' Evaluates the agent. '''
+        '''
+        Evaluates the agent.
+        
+        Args:
+            numIters (int): The number of evaluation iterations.
+        
+        Returns:
+            dict: A set of scores.
+        '''
         self.epsilon = 0
         self.env.seed(0)
 
@@ -177,7 +232,14 @@ class FuncApproxLRAgent(FlappyBirdAgent):
         return output
             
     def updateWeight(self, state, action, reward, nextState):
-        ''' Updates the weights based on an observation. '''
+        '''
+        Updates the weights based on an observation.
+        
+        Args:
+            state, nextState (str): Two states.
+            action (int): 0 or 1.
+            reward (int): The reward value.
+        '''
         nextQValues = [self.qValues(nextState, nextAction) for nextAction in self.actions]
         nextV = max(nextQValues)
         currQValue = self.qValues(state, action)
@@ -185,7 +247,13 @@ class FuncApproxLRAgent(FlappyBirdAgent):
         increment(self.weights, -self.eta * (currQValue - reward - self.discount * nextV), currFeatures)
 
     def saveOutput(self, output, iter):
-        ''' Save the scores. '''
+        '''
+        Save the scores.
+        
+        Args:
+            output (dict): A set of scores.
+            iter (int): Current iteration.
+        '''
         if not os.path.isdir('scores'):
             os.mkdir('scores')
         with open('./scores/scores_{}.json'.format(iter), 'w') as fp:
