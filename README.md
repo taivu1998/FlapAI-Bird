@@ -22,7 +22,7 @@ The project requires the following frameworks:
 
 - OpenCV: https://opencv.org
 
-## Usage
+## Train an Agent
 
 The program implements the following agents.
 
