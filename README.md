@@ -2,6 +2,10 @@
 
 This AI program implements several AI agents for playing Flappy Bird. The program applies reinforcement learning techniques, including SARSA, Q-Learning, and Function Approximation.
 
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/46636857/77217879-87ed6e80-6b58-11ea-9110-a8c605c190b2.gif">
+</p>
+
 ## Installation
 
 The project requires the following frameworks:
