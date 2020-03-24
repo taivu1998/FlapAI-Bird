@@ -29,37 +29,37 @@ The program implements the following agents.
 - Baseline Agent.
 
 ```bash
-python main.py --algo=Baseline --probFlap=0.5
+python main.py --algo Baseline --probFlap 0.5
 ```
 
 - SARSA Agent.
 
 ```bash
-python main.py --algo=SARSA --probFlap=0.1 --rounding=10 --lr=0.8
+python main.py --algo SARSA --probFlap 0.1 --rounding 10 --lr 0.8
 ```
 
 - Q-Learning Agent.
 
 ```bash
-python main.py --algo=QLearning --probFlap=0.1 --rounding=10 --lr=0.8 --order=backward
+python main.py --algo QLearning --probFlap 0.1 --rounding 10 --lr 0.8 --order backward
 ```
 
 - Function Approximation Agent with Linear Regression.
 
 ```bash
-python main.py --algo=FuncApproxLR --probFlap=0.1 --lr=0.1
+python main.py --algo FuncApproxLR --probFlap 0.1 --lr 0.1
 ```
 
 - Function Approximation Agent with a Feed Forward Neural Network.
 
 ```bash
-python main.py --algo=FuncApproxDNN --probFlap=0.1 --lr=0.1
+python main.py --algo FuncApproxDNN --probFlap 0.1 --lr 0.1
 ```
 
 - Function Approximation Agent with Convolutional Neural Network.
 
 ```bash
-python main.py --algo=FuncApproxCNN --probFlap=0.1 --lr=0.1
+python main.py --algo FuncApproxCNN --probFlap 0.1 --lr 0.1
 ```
 
 ## Authors
