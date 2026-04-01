@@ -271,12 +271,14 @@ python main.py --algo FuncApproxCNN --probFlap 0.1 --lr 0.1 --batch-size 32 --nu
 --epsilon           Initial ε for exploration (default: 0.0)
 --lr                Learning rate α (default: 0.1)
 --epsilonDecay      Enable ε decay schedule
---lrDecay           Enable learning rate decay schedule
---resume            Resume training from checkpoint (neural network agents)
+--lrDecay           Enable inverse learning-rate decay lr_t = lr_0 / (t + 1) for neural agents
+--resume            Resume neural agents from checkpoints/FuncApprox*_checkpoint.pt (falls back to legacy model.params weights)
 --seed              Random seed for reproducibility (default: 0)
 --batch-size        Minibatch size for experience replay (default: 32)
 --num-experience    Replay buffer capacity (default: 50,000)
 ```
+
+For the neural agents, `--resume` now restores full training state from `checkpoints/FuncApproxDNN_checkpoint.pt` or `checkpoints/FuncApproxCNN_checkpoint.pt`, including optimizer state and, for the CNN agent, replay memory. When `--lrDecay` is enabled, those agents follow the same inverse schedule as the tabular agents: `lr_t = lr_0 / (t + 1)`.
 
 ## Project Structure
 

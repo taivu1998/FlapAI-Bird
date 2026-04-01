@@ -84,6 +84,9 @@ class HParams():
 
 class FuncApproxDNNAgent(FlappyBirdAgent):
     ''' Function Approximation Agent with a Feed Forward Neural Network. '''
+    MODEL_PATH = 'model.params'
+    CHECKPOINT_DIR = 'checkpoints'
+    CHECKPOINT_PATH = os.path.join(CHECKPOINT_DIR, 'FuncApproxDNN_checkpoint.pt')
     
     def __init__(self, actions, probFlap = 0.1):
         '''
@@ -101,6 +104,72 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.net = Net().to(self.device)
         self.criterion = torch.nn.MSELoss()
+
+    def _ensureCheckpointDir(self):
+        ''' Creates the checkpoint directory if needed. '''
+        if not os.path.isdir(self.CHECKPOINT_DIR):
+            os.mkdir(self.CHECKPOINT_DIR)
+
+    def _moveOptimizerStateToDevice(self):
+        ''' Moves optimizer tensors to the active device after loading a checkpoint. '''
+        for state in self.optimizer.state.values():
+            for key, value in state.items():
+                if torch.is_tensor(value):
+                    state[key] = value.to(self.device)
+
+    def _setLearningRate(self, iteration):
+        '''
+        Applies the current learning-rate schedule.
+        
+        Args:
+            iteration (int): The current training iteration.
+
+        Returns:
+            float: The learning rate for this iteration.
+        '''
+        currentLr = self.hparams.lr / (iteration + 1) if self.lrDecay else self.hparams.lr
+        for paramGroup in self.optimizer.param_groups:
+            paramGroup['lr'] = currentLr
+        return currentLr
+
+    def saveCheckpoint(self, iteration):
+        '''
+        Saves the full training state for resume.
+        
+        Args:
+            iteration (int): Number of completed training iterations.
+        '''
+        self._ensureCheckpointDir()
+        checkpoint = {
+            'iteration': iteration,
+            'model_state_dict': self.net.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict(),
+            'learning_rate': self.hparams.lr,
+            'lr_decay': self.lrDecay,
+        }
+        torch.save(checkpoint, self.CHECKPOINT_PATH)
+
+    def loadCheckpoint(self):
+        '''
+        Loads the training state from disk.
+        
+        Returns:
+            int: The next training iteration to run.
+        '''
+        if os.path.isfile(self.CHECKPOINT_PATH):
+            checkpoint = torch.load(self.CHECKPOINT_PATH, map_location = self.device)
+            self.net.load_state_dict(checkpoint['model_state_dict'])
+            self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            self.hparams.lr = checkpoint.get('learning_rate', self.hparams.lr)
+            self.lrDecay = checkpoint.get('lr_decay', self.lrDecay)
+            self._moveOptimizerStateToDevice()
+            print("Resuming from checkpoint:", self.CHECKPOINT_PATH)
+            return checkpoint.get('iteration', 0)
+        if os.path.isfile(self.MODEL_PATH):
+            self.loadModel()
+            print("Loaded legacy model weights from {} without optimizer state.".format(self.MODEL_PATH))
+            return 0
+        raise FileNotFoundError("Resume requested but no checkpoint was found at {}.".format(self.CHECKPOINT_PATH))
     
     def qValues(self, state):
         '''
@@ -174,6 +243,8 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
         if self.hparams.seed != 0:
             torch.manual_seed(self.hparams.seed)
         self.optimizer = torch.optim.SGD(self.net.parameters(), lr = self.hparams.lr)
+        startIter = self.loadCheckpoint() if self.hparams.resume else 0
+        finalIter = max(numIters, startIter)
 
         self.env.seed(random.randint(0, 100))
         self.net.train()
@@ -183,12 +254,13 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
         maxScore = 0
         maxReward = 0
         
-        for i in range(numIters):
+        for i in range(startIter, numIters):
             if i % 50 == 0 or i == numIters - 1:
                 print("Iter: ", i)
             
             self.epsilon = self.initialEpsilon / (i + 1) if self.epsilonDecay \
                            else self.initialEpsilon
+            currentLr = self._setLearningRate(i)
             self.net.train()
             score = 0
             totalReward = 0
@@ -222,7 +294,11 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
                 output = self.test(numIters = self.numItersEval)
                 self.saveOutput(output, i + 1)
                 self.saveModel()
+                self.saveCheckpoint(i + 1)
+                print("Learning Rate: ", currentLr)
 
+        self.saveModel()
+        self.saveCheckpoint(finalIter)
         self.env.close()
         print("Max Score: ", maxScore)
         print("Max Reward: ", maxReward)
@@ -308,11 +384,10 @@ class FuncApproxDNNAgent(FlappyBirdAgent):
     
     def saveModel(self):
         ''' Saves the network. '''
-        torch.save(self.net.state_dict(), "model.params")
+        torch.save(self.net.state_dict(), self.MODEL_PATH)
         
     def loadModel(self):
         ''' Loads the network. '''
-        self.net = Net()
-        self.net.load_state_dict(torch.load("model.params"))
+        self.net.load_state_dict(torch.load(self.MODEL_PATH, map_location = self.device))
         self.net = self.net.to(self.device)
         

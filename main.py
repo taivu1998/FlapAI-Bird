@@ -55,11 +55,11 @@ def parseArgs():
     parser.add_argument('--epsilonDecay', action = 'store_true',
                         help = 'Use epsilon decay or not.')
     parser.add_argument('--lrDecay', action = 'store_true',
-                        help = 'Use learning rate decay or not.')
+                        help = 'Use inverse learning-rate decay lr_t = lr_0 / (t + 1) for supported agents.')
     
     # Additional Parameters for Neural Networks.
     parser.add_argument('--resume', action = 'store_true',
-                        help = 'Resume from checkpoints or not.')
+                        help = 'Resume supported neural agents from checkpoints/ when available.')
     parser.add_argument('--seed', type = int, default = 0,
                         help = 'Random seed for PyTorch.')
     parser.add_argument('--batch-size', type = int, default = 32,
